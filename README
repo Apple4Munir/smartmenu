@@ -1,0 +1,51 @@
+Smart Menu for Android
+
+
+Description
+----------------------------------------------
+SmartMenu? provide a simple, easy to use menu which can be added
+over any Android view. The user must perform a gesture to display it.
+
+
+Usage
+----------------------------------------------
+SmartMenuOverlayView is a class extended from GestureOverlayView.
+You need to add a gesture library in order to use it, for example
+the res/raw/gesture file, which contains a gesture for a little
+circle.
+
+You can use this class as you would do for a GestureOverlayView, by
+adding any View or Layout into it. There's a good documentation
+about this at :
+http://developer.android.com/resources/articles/gestures.html
+
+You must add items to your menu (up to 8) using the
+SmartMenuOverlayView.SmartMenuItems class, each with a label and a
+picture. The picture *must* be at least 48x48. Override the
+onItemSelected method for each menu item to do what you want.
+
+The size of the displayed menu is computed from the size of the
+view, so you shouldn't have to worry about it.
+
+
+Licence
+----------------------------------------------
+   Copyright 2011 Devoteam/Uperto
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+   
+
+Credits
+----------------------------------------------
+Icons for the example application comes from
+http://everaldo.com/crystal/
