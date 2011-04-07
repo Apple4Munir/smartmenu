@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.uperto.smartmenu.SmartMenuOverlayView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/gestures"
+	android:layout_width="fill_parent" 
+    android:layout_weight="1.0" android:layout_height="fill_parent" android:layout_gravity="fill"
+    android:gestureStrokeType="multiple"
+    android:eventsInterceptionEnabled="true"
+    >
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:orientation="vertical"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    >
+		<TextView android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/hello" android:id="@+id/text" />
+		<Button android:text="Do things" android:id="@+id/button1" android:layout_width="fill_parent" android:layout_height="wrap_content"></Button>
+		<Button android:text="Do other things" android:id="@+id/button2" android:layout_width="fill_parent" android:layout_height="wrap_content"></Button>
+	</LinearLayout>
+</com.uperto.smartmenu.SmartMenuOverlayView>
