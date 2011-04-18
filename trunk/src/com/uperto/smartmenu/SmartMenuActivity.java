@@ -21,6 +21,8 @@ import android.gesture.GestureLibraries;
 import android.gesture.GestureLibrary;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -71,6 +73,11 @@ public class SmartMenuActivity extends Activity {
         SmartMenuOverlayView smartMenu = (SmartMenuOverlayView) findViewById(R.id.gestures);
         smartMenu.setGestureLibrary(mLibrary);
         
+        Paint painter = smartMenu.getPainter();
+        painter.setColor(Color.GREEN);
+        
+        smartMenu.setBackgroundColor(Color.argb(200, 255, 0, 0));
+        
         // Add items to the menu
         Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.icon1);
     	smartMenu.addMenuItem(new SmartMenuOverlayView.SmartMenuItem("Item 1", bmp) {
@@ -119,5 +126,16 @@ public class SmartMenuActivity extends Activity {
 				return true;
     		}
     	});
+    	
+    	if (savedInstanceState != null && savedInstanceState.getBoolean("menuOpened")) {
+    		smartMenu.open(false);
+    	}
+    }
+    
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+    	super.onSaveInstanceState(outState);
+    	
+    	outState.putBoolean("menuOpened", true);
     }
 }

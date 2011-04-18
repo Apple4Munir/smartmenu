@@ -97,10 +97,10 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 	}
 
 	/**
-	 * @param mLibrary
+	 * @param library
 	 */
-	public void setGestureLibrary(GestureLibrary mLibrary) {
-		this.mLibrary = mLibrary;
+	public void setGestureLibrary(GestureLibrary library) {
+		this.mLibrary = library;
 	}
 	
 	/**
@@ -109,6 +109,57 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 	 */
 	public void addMenuItem(SmartMenuItem item) {
 		mCircleView.addMenuItem(item);
+	}
+	
+	/**
+	 * @param painter
+	 */
+	public void setPainter(Paint painter) {
+		this.mCircleView.mPainter = painter;
+	}
+	
+	/**
+	 * @return
+	 */
+	public Paint getPainter() {
+		return this.mCircleView.mPainter;
+	}
+	
+	/* (non-Javadoc)
+	 * @see android.view.View#setBackgroundColor(int)
+	 */
+	public void setBackgroundColor(int color) {
+		this.mCircleView.setBackgroundColor(color);
+	}
+	
+	/**
+	 * @param animate If true, skip the opening animation
+	 */
+	public void open(boolean animate) {
+		bringChildToFront(mCircleView);
+		mCircleView.reset();
+		mCircleView.setVisibility(VISIBLE);
+		setGestureVisible(false);
+		setEventsInterceptionEnabled(false);
+		
+		// Skip the animation
+		if (!animate) {
+			mCircleView.setAnimationEnd();
+		}
+	}
+	
+	/**
+	 * Close the circle menu if opened
+	 */
+	public void close() {
+		mCircleView.close();
+	}
+	
+	/**
+	 * @return true if the circle menu is visible
+	 */
+	public boolean isOpened() {
+		return (mCircleView.getVisibility() == VISIBLE);
 	}
 
 	@Override
@@ -120,11 +171,7 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 			Prediction prediction = predictions.get(0);
 			// We want at least some confidence in the result
 			if (prediction.score > 1.0) {
-				bringChildToFront(mCircleView);
-				mCircleView.reset();
-				mCircleView.setVisibility(VISIBLE);
-				setGestureVisible(false);
-				setEventsInterceptionEnabled(false);
+				open(true);
 			}
 		}
 	}
@@ -154,7 +201,6 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 			setBackgroundColor(Color.argb(200, 0, 0, 0));
 			// Init the painter, set parameters here
 			mPainter = new Paint(Paint.ANTI_ALIAS_FLAG);
-			//painter.setAlpha(200);
 			mPainter.setStyle(Paint.Style.STROKE);
 			mPainter.setColor(Color.WHITE);
 			mPainter.setStrokeWidth(3);
@@ -169,6 +215,18 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 			mComputedValues = false;
 			setText(null);
 			requestFocus();
+		}
+		
+		protected void close() {
+			setVisibility(INVISIBLE);
+			mParent.clear(false);
+			mParent.setGestureVisible(true);
+			mParent.setEventsInterceptionEnabled(true);
+		}
+		
+		protected void setAnimationEnd() {
+			mCurrentAngle = 360;
+			mCurrentBranch = mItems.size();
 		}
 		
 		protected void addMenuItem(SmartMenuItem item) {
@@ -208,10 +266,7 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 					if (Math.sqrt( (event.getX() - x)*(event.getX() - x) + (event.getY() - y) * (event.getY() - y) ) <= sBranchesRadius) {
 						if (mItems.get(i).onItemSelected()) {
 							// Close the menu
-							setVisibility(INVISIBLE);
-							mParent.clear(false);
-							mParent.setGestureVisible(true);
-							mParent.setEventsInterceptionEnabled(true);
+							close();
 						}
 					}
 				}
@@ -224,10 +279,7 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 		@Override
 		public boolean onKeyDown(int keyCode, KeyEvent event) {
 			if (keyCode == KeyEvent.KEYCODE_BACK) {
-				setVisibility(INVISIBLE);
-				mParent.clear(false);
-				mParent.setGestureVisible(true);
-				mParent.setEventsInterceptionEnabled(true);
+				close();
 			}
 			return true;
 		}
@@ -404,8 +456,8 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 			canvas.drawText(mText, sLabelMargin + sLabelWidth/2, sLabelMargin*2 + sLabelHeight/2, textPainter);
 		}
 
-		public void setText(String mText) {
-			this.mText = mText;
+		public void setText(String text) {
+			this.mText = text;
 		}
 
 		public String getText() {
@@ -429,10 +481,10 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 		}
 
 		/**
-		 * @param mText
+		 * @param text
 		 */
-		public void setText(String mText) {
-			this.mText = mText;
+		public void setText(String text) {
+			this.mText = text;
 		}
 
 		/**
@@ -443,10 +495,10 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 		}
 
 		/**
-		 * @param mIcon
+		 * @param icon
 		 */
-		public void setIcon(Bitmap mIcon) {
-			this.mIcon = SmartMenuIconFactory.createRoundedBitmap(mIcon);
+		public void setIcon(Bitmap icon) {
+			this.mIcon = SmartMenuIconFactory.createRoundedBitmap(icon);
 		}
 
 		/**
