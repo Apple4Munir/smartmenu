@@ -73,10 +73,11 @@ public class SmartMenuActivity extends Activity {
         SmartMenuOverlayView smartMenu = (SmartMenuOverlayView) findViewById(R.id.gestures);
         smartMenu.setGestureLibrary(mLibrary);
         
-        Paint painter = smartMenu.getPainter();
-        painter.setColor(Color.GREEN);
-        
-        smartMenu.setBackgroundColor(Color.argb(200, 255, 0, 0));
+        // Uncomment to change background color and line properties
+        //Paint painter = smartMenu.getPainter();
+        //painter.setColor(Color.GREEN);
+        //painter.setStrokeWidth(1);
+        //smartMenu.setBackgroundColor(Color.argb(200, 255, 0, 0));
         
         // Add items to the menu
         Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.icon1);
