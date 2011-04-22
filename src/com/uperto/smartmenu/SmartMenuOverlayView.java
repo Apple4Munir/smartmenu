@@ -90,13 +90,16 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 	}
 	
 	/**
-	 * @return
+	 * Get the associated gesture library
+	 * @return A gesture library, or null
 	 */
 	public GestureLibrary getGestureLibrary() {
 		return mLibrary;
 	}
 
 	/**
+	 * Define the gesture library used for the menu opening
+	 * Any gesture contained in this library will open the menu
 	 * @param library
 	 */
 	public void setGestureLibrary(GestureLibrary library) {
@@ -105,6 +108,7 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 	
 	/**
 	 * Add an item to the menu
+	 * No more than 8 items can be used
 	 * @param item
 	 */
 	public void addMenuItem(SmartMenuItem item) {
@@ -112,6 +116,40 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 	}
 	
 	/**
+	 * @param index
+	 * @return
+	 */
+	public SmartMenuItem getMenuItem(int index) {
+		return mCircleView.getMenuItem(index);
+	}
+	
+	/**
+	 * @param item
+	 * @return
+	 */
+	public boolean deleteMenuItem(SmartMenuItem item) {
+		return mCircleView.deleteMenuItem(item);
+	}
+	
+	/**
+	 * @param item
+	 * @param index
+	 */
+	public void insertMenuItemAt(SmartMenuItem item, int index) {
+		mCircleView.insertMenuItemAt(item, index);
+	}
+	
+	/**
+	 * @param item
+	 * @return
+	 */
+	public int indexOf(SmartMenuItem item) {
+		return mCircleView.indexOf(item);
+	}
+	
+	/**
+	 * Set the painter used to draw the menu
+	 * If no painter is set, a default painter will be used
 	 * @param painter
 	 */
 	public void setPainter(Paint painter) {
@@ -119,6 +157,7 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 	}
 	
 	/**
+	 * Get the painter used to draw the menu
 	 * @return
 	 */
 	public Paint getPainter() {
@@ -231,6 +270,22 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 		
 		protected void addMenuItem(SmartMenuItem item) {
 			mItems.add(item);
+		}
+		
+		protected SmartMenuItem getMenuItem(int index) {
+			return mItems.get(index);
+		}
+		
+		protected boolean deleteMenuItem(SmartMenuItem item) {
+			return mItems.remove(item);
+		}
+		
+		protected void insertMenuItemAt(SmartMenuItem item, int index) {
+			mItems.insertElementAt(item, index);
+		}
+		
+		protected int indexOf(SmartMenuItem item) {
+			return mItems.indexOf(item);
 		}
 		
 		@Override
@@ -465,6 +520,10 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 		}
 	}
 	
+	/**
+	 * @author lcacheux
+	 *
+	 */
 	public static class SmartMenuItem {
 		private String mText;
 		private Bitmap mIcon;
@@ -508,11 +567,11 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 			return mIcon;
 		}
 		
-		/**
+		/** 
 		 * @param x
 		 * @param y
 		 */
-		public void setPosition (int x, int y) {
+		protected void setPosition (int x, int y) {
 			this.setX(x);
 			this.setY(y);
 		}
@@ -520,7 +579,7 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 		/**
 		 * @param mX
 		 */
-		public void setX(int mX) {
+		protected void setX(int mX) {
 			this.mX = mX;
 		}
 
@@ -534,7 +593,7 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 		/**
 		 * @param mY
 		 */
-		public void setY(int mY) {
+		protected void setY(int mY) {
 			this.mY = mY;
 		}
 
@@ -545,6 +604,10 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 			return mY;
 		}
 		
+		/**
+		 * This method must be overrided to add an action to the item
+		 * @return true if the menu must be closed, false otherwise
+		 */
 		public boolean onItemSelected() {
 			return true;
 		}
