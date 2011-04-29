@@ -35,6 +35,15 @@ public class SmartMenuActivity extends Activity {
 	private Button 			mButton1;
 	private Button			mButton2;
 	
+	// Which option is active
+	private boolean	mChangedBackgroundColor = false;
+	private boolean	mChangedPainterColor = false;
+	private boolean	mChangedPainterStrokeWidth = false;
+	private boolean	mChangedHaloCenterColor = false;
+	private boolean mChangedHaloOutsideColor = false;
+	private boolean mChangedHaloGradient = false;
+	private boolean mChangedHaloRadius = false;
+	
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -70,60 +79,106 @@ public class SmartMenuActivity extends Activity {
         });
         
         // Init the SmartMenu with our gesture library
-        SmartMenuOverlayView smartMenu = (SmartMenuOverlayView) findViewById(R.id.gestures);
+        final SmartMenuOverlayView smartMenu = (SmartMenuOverlayView) findViewById(R.id.gestures);
         smartMenu.setGestureLibrary(mLibrary);
         
-        // Uncomment to change background color and line properties
-        //Paint painter = smartMenu.getPainter();
-        //painter.setColor(Color.GREEN);
-        //painter.setStrokeWidth(1);
-        //smartMenu.setBackgroundColor(Color.argb(200, 255, 0, 0));
+        final Paint painter = smartMenu.getPainter();
         
         // Add items to the menu
         Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.icon1);
-    	smartMenu.addMenuItem(new SmartMenuOverlayView.SmartMenuItem("Item 1", bmp) {
+    	smartMenu.addMenuItem(new SmartMenuOverlayView.SmartMenuItem("Background", bmp) {
     		public boolean onItemSelected() {
-    			mText.setText("Item 1 selected");
+    			if (mChangedBackgroundColor) {
+    				smartMenu.setBackgroundColor(Color.argb(200, 0, 0, 0));
+    				mChangedBackgroundColor = false;
+    			} else {
+    				smartMenu.setBackgroundColor(Color.argb(200, 255, 0, 0));
+    				mChangedBackgroundColor = true;
+    			}
 				return true;
     		}
     	});
     	
     	bmp = BitmapFactory.decodeResource(getResources(), R.drawable.icon2);
-    	smartMenu.addMenuItem(new SmartMenuOverlayView.SmartMenuItem("Item 2", bmp) {
+    	smartMenu.addMenuItem(new SmartMenuOverlayView.SmartMenuItem("Painter color", bmp) {
     		public boolean onItemSelected() {
-    			mText.setText("Item 2 selected");
+    			if (mChangedPainterColor) {
+    				painter.setColor(Color.WHITE);
+    				mChangedPainterColor = false;
+    			} else {
+    				painter.setColor(Color.GREEN);
+    				mChangedPainterColor = true;
+    			}
 				return true;
     		}
     	});
     	
     	bmp = BitmapFactory.decodeResource(getResources(), R.drawable.icon3);
-    	smartMenu.addMenuItem(new SmartMenuOverlayView.SmartMenuItem("Item 3", bmp) {
+    	smartMenu.addMenuItem(new SmartMenuOverlayView.SmartMenuItem("Stroke width", bmp) {
     		public boolean onItemSelected() {
-    			mText.setText("Item 3 selected");
+    			if (mChangedPainterStrokeWidth) {
+    				painter.setStrokeWidth(3);
+    				mChangedPainterStrokeWidth = false;
+    			} else {
+    				painter.setStrokeWidth(1);
+    				mChangedPainterStrokeWidth = true;
+    			}
 				return true;
     		}
     	});
     	
     	bmp = BitmapFactory.decodeResource(getResources(), R.drawable.icon4);
-    	smartMenu.addMenuItem(new SmartMenuOverlayView.SmartMenuItem("Item 4", bmp) {
+    	smartMenu.addMenuItem(new SmartMenuOverlayView.SmartMenuItem("Halo center color", bmp) {
     		public boolean onItemSelected() {
-    			mText.setText("Item 4 selected");
+    			if (mChangedHaloCenterColor) {
+    				smartMenu.setHaloCenterColor(Color.argb(100, 128, 128, 128));
+    				mChangedHaloCenterColor = false;
+    			} else {
+    				smartMenu.setHaloCenterColor(Color.argb(100, 255, 0, 0));
+    				mChangedHaloCenterColor = true;
+    			}
 				return true;
     		}
     	});
     	
     	bmp = BitmapFactory.decodeResource(getResources(), R.drawable.icon5);
-    	smartMenu.addMenuItem(new SmartMenuOverlayView.SmartMenuItem("Item 5", bmp) {
+    	smartMenu.addMenuItem(new SmartMenuOverlayView.SmartMenuItem("Halo out color", bmp) {
     		public boolean onItemSelected() {
-    			mText.setText("Item 5 selected");
+    			if (mChangedHaloOutsideColor) {
+    				smartMenu.setHaloOutsideColor(Color.argb(10, 255, 255, 255));
+    				mChangedHaloOutsideColor = false;
+    			} else {
+    				smartMenu.setHaloOutsideColor(Color.argb(20, 0, 0, 255));
+    				mChangedHaloOutsideColor = true;
+    			}
 				return true;
     		}
     	});
     	
     	bmp = BitmapFactory.decodeResource(getResources(), R.drawable.icon6);
-    	smartMenu.addMenuItem(new SmartMenuOverlayView.SmartMenuItem("Item 6", bmp) {
+    	smartMenu.addMenuItem(new SmartMenuOverlayView.SmartMenuItem("Halo gradient", bmp) {
     		public boolean onItemSelected() {
-    			mText.setText("Item 6 selected");
+    			if (mChangedHaloGradient) {
+    				smartMenu.setHaloGradient(15);
+    				mChangedHaloGradient = false;
+    			} else {
+    				smartMenu.setHaloGradient(5);
+    				mChangedHaloGradient = true;
+    			}
+				return true;
+    		}
+    	});
+    	
+    	bmp = BitmapFactory.decodeResource(getResources(), R.drawable.icon7);
+    	smartMenu.addMenuItem(new SmartMenuOverlayView.SmartMenuItem("Halo radius", bmp) {
+    		public boolean onItemSelected() {
+    			if (mChangedHaloRadius) {
+    				smartMenu.setHaloRadius(30);
+    				mChangedHaloRadius = false;
+    			} else {
+    				smartMenu.setHaloRadius(60);
+    				mChangedHaloRadius = true;
+    			}
 				return true;
     		}
     	});

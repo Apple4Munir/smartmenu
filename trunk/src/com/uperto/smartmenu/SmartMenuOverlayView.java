@@ -29,7 +29,10 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PorterDuff;
 import android.graphics.RectF;
+import android.graphics.Region;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -51,6 +54,16 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 	protected static int sLabelHeight = 50;
 	protected static int sLabelWidth = 200;
 	protected static int sLabelFont = 30;
+
+	// Halo parameters
+	protected boolean mDisplayHalo = true;
+	
+
+	protected int mHaloRadius = 30;
+	protected int mHaloGradient = 15;
+	
+	protected int mHaloCenterColor = Color.argb(100, 128, 128, 128);
+	protected int mHaloOutsideColor = Color.argb(10, 255, 255, 255);
 	
 	// Make these static to compute them only once
 	protected static final double RAD_45 = Math.PI/4;
@@ -170,7 +183,79 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 	public void setBackgroundColor(int color) {
 		this.mCircleView.setBackgroundColor(color);
 	}
+
+	/**
+	 * @return is the halo enabled
+	 */
+	public boolean displayHalo() {
+		return mDisplayHalo;
+	}
+
+	/**
+	 * @param displayHalo true to display the halo, false to hide it
+	 */
+	public void setDisplayHalo(boolean displayHalo) {
+		this.mDisplayHalo = displayHalo;
+	}
 	
+	/**
+	 * @return the halo radius
+	 */
+	public int getHaloRadius() {
+		return mHaloRadius;
+	}
+
+	/**
+	 * @param radius the halo radius to set
+	 */
+	public void setHaloRadius(int radius) {
+		this.mHaloRadius = radius;
+	}
+
+	/**
+	 * @return the number of steps used to draw the halo 
+	 */
+	public int getHaloGradient() {
+		return mHaloGradient;
+	}
+
+	/**
+	 * The more steps we use, the more smooth is the halo gradient
+	 * Using more steps than the radius is useless
+	 * @param gradient the number of steps used to draw the halo
+	 */
+	public void setHaloGradient(int gradient) {
+		this.mHaloGradient = gradient;
+	}
+
+	/**
+	 * @return the color of the center of the halo
+	 */
+	public int getHaloCenterColor() {
+		return mHaloCenterColor;
+	}
+
+	/**
+	 * @param color the color of the center of the halo
+	 */
+	public void setHaloCenterColor(int color) {
+		this.mHaloCenterColor = color;
+	}
+
+	/**
+	 * @return the color of the outline border of the halo
+	 */
+	public int getHaloOutsideColor() {
+		return mHaloOutsideColor;
+	}
+
+	/**
+	 * @param color the color of the outline border of the halo
+	 */
+	public void setHaloOutsideColor(int color) {
+		this.mHaloOutsideColor = color;
+	}
+
 	/**
 	 * @param animate If true, skip the opening animation
 	 */
@@ -220,6 +305,10 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 		private int mCurrentAngle = 0;
 		private int mCurrentBranch = 0;
 		private int mCurrentBranchLength = 0;
+		
+		protected float		mHaloX = 0;
+		protected float		mHaloY = 0;
+		protected boolean	mDrawHalo = false;
 		
 		private boolean					mComputedValues = false;
 		private Paint					mPainter;
@@ -293,6 +382,10 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
 			case MotionEvent.ACTION_MOVE:
+				mDrawHalo = true;
+				mHaloX = event.getX();
+				mHaloY = event.getY();
+				
 				boolean isInMenu = false;
 				for (int i=0; i<mItems.size(); i++) {
 					int x = mItems.get(i).getX();
@@ -301,7 +394,7 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 					if (Math.sqrt( (event.getX() - x)*(event.getX() - x) + (event.getY() - y) * (event.getY() - y) ) <= sBranchesRadius) {
 						if (getText() == null || getText().equals(mItems.get(i).getText())) {
 							setText(mItems.get(i).getText());
-							invalidate();
+							//invalidate();
 						}
 						isInMenu = true;
 					}
@@ -309,11 +402,13 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 				if (!isInMenu) {
 					if (getText() != null) {
 						setText(null);
-						invalidate();
+						//invalidate();
 					}
 				}
+				invalidate();
 				break;
 			case MotionEvent.ACTION_UP:
+				mDrawHalo = false;
 				for (int i=0; i<mItems.size(); i++) {
 					int x = mItems.get(i).getX();
 					int y = mItems.get(i).getY();
@@ -325,6 +420,7 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 						}
 					}
 				}
+				invalidate();
 				break;
 			default:
 			}
@@ -369,6 +465,11 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 				mComputedValues = true;
 			}
 			
+			// Draw the halo if the user touch the screen
+			if (mDrawHalo && mParent.mDisplayHalo) {
+				drawHalo(canvas);
+			}
+						
 			// Draw the label only if necessary
 			if (mText != null && mText.length() > 0) {
 				drawLabel(canvas, mText);
@@ -501,7 +602,7 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 			}
 		}
 	
-		public void drawLabel(Canvas canvas, String text) {
+		private void drawLabel(Canvas canvas, String text) {
 			RectF rect = new RectF(sLabelMargin, sLabelMargin, sLabelMargin + sLabelWidth, sLabelMargin + sLabelHeight);
 			canvas.drawRoundRect(rect, 10, 10, mPainter);
 			Paint textPainter = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -509,6 +610,33 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 			textPainter.setTextSize(sLabelFont);
 			textPainter.setColor(Color.WHITE);
 			canvas.drawText(mText, sLabelMargin + sLabelWidth/2, sLabelMargin*2 + sLabelHeight/2, textPainter);
+		}
+		
+		private void drawHalo(Canvas canvas) {
+			// Separate the colors components
+			int ao, ro, go, bo, ac, rc, gc, bc;
+			
+			ao = Color.alpha(mParent.mHaloOutsideColor);
+			ro = Color.red(mParent.mHaloOutsideColor);
+			go = Color.green(mParent.mHaloOutsideColor);
+			bo = Color.blue(mParent.mHaloOutsideColor);
+			
+			ac = Color.alpha(mParent.mHaloCenterColor);
+			rc = Color.red(mParent.mHaloCenterColor);
+			gc = Color.green(mParent.mHaloCenterColor);
+			bc = Color.blue(mParent.mHaloCenterColor);
+			
+			for (int i=0; i<=mParent.mHaloGradient; i++) {
+				Paint painter = new Paint(Paint.ANTI_ALIAS_FLAG);
+				painter.setColor(Color.argb(
+						ao + (ac - ao)/mParent.mHaloGradient * i,
+						ro + (rc - ro)/mParent.mHaloGradient * i,
+						go + (gc - go)/mParent.mHaloGradient * i,
+						bo + (bc - bo)/mParent.mHaloGradient * i
+				));
+				painter.setStyle(Paint.Style.FILL);
+				canvas.drawCircle(mHaloX, mHaloY, mParent.mHaloRadius - (mParent.mHaloRadius/mParent.mHaloGradient) * i, painter);
+			}
 		}
 
 		public void setText(String text) {
@@ -619,38 +747,16 @@ public class SmartMenuOverlayView extends GestureOverlayView implements OnGestur
 		 * @return A bitmap resized and croped to be only a circle
 		 */
 		public static Bitmap createRoundedBitmap(Bitmap input) {
-			// Create the mask
-			Bitmap mask = Bitmap.createBitmap(sBranchesRadius * 2, sBranchesRadius * 2, Bitmap.Config.ARGB_8888);
-			Canvas maskCanvas = new Canvas(mask);
-			maskCanvas.drawARGB(0, 255, 255, 255);
+			Bitmap output = Bitmap.createScaledBitmap(input, sBranchesRadius * 2, sBranchesRadius * 2, false);
+			Canvas maskCanvas = new Canvas(output);
 			
-			// Draw the circle into the mask
-			Paint painter = new Paint(Paint.ANTI_ALIAS_FLAG);
-			painter.setStyle(Paint.Style.FILL);
-			painter.setColor(Color.argb(255, 0, 0, 0));
-			maskCanvas.drawCircle(sBranchesRadius, sBranchesRadius, sBranchesRadius, painter);
+			Path p = new Path();
+			p.addCircle(sBranchesRadius, sBranchesRadius, sBranchesRadius, Path.Direction.CW);
 			
-			// Copy only the central part from the bitmap
-			int beginX = input.getWidth() / 2 - sBranchesRadius;
-			int beginY = input.getHeight() / 2 - sBranchesRadius;
-			Bitmap temp = Bitmap.createBitmap(input, beginX, beginY, sBranchesRadius*2, sBranchesRadius*2);
-			Bitmap output = temp.copy(Bitmap.Config.ARGB_8888, true);
-			// Apply the mask
-			for (int i=0; i<output.getWidth(); i++) {
-				for (int j=0; j<output.getHeight(); j++) {
-					int a = Color.alpha(mask.getPixel(i, j));
-					if (a == 0)
-						output.setPixel(i, j, Color.argb(0, 255, 0, 0));
-				}
-			}
+			maskCanvas.clipPath(p, Region.Op.DIFFERENCE);
+			maskCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
 			
-			// Really needed ? Transparency doesn't work without this...
-			Bitmap newoutput = Bitmap.createBitmap(sBranchesRadius * 2, sBranchesRadius * 2, Bitmap.Config.ARGB_8888);
-			Canvas outputCanvas = new Canvas(newoutput);
-			outputCanvas.drawARGB(0, 255, 255, 255);
-			outputCanvas.drawBitmap(output, 0, 0, painter);
-			
-			return newoutput;
+			return output;
 		}
 	}
 }
